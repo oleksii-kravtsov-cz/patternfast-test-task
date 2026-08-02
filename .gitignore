@@ -1,0 +1,16 @@
+node_modules/
+dist/
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfplan
+.terraform.lock.hcl
+*.tfvars
+!terraform/terraform.tfvars.example
+.DS_Store
+.env
+
+logs/
+
+.kube-config-cell
+.kubeconfig-*

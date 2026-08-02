@@ -1,0 +1,13 @@
+{
+  "name": "billing-service-stub",
+  "version": "0.0.1",
+  "private": true,
+  "description": "Assessment stub for DevOps technical exercise",
+  "main": "src/health.js",
+  "scripts": {
+    "start": "node src/health.js"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

@@ -1,0 +1,30 @@
+
+aws_region  = "eu-central-1"
+environment = "cell-01"
+customer_id = "acme-042"
+tier        = "enterprise"
+
+vpc_cidr = "10.100.0.0/16"
+
+trusted_admin_cidrs = ["10.200.0.0/16"]
+
+github_repository         = "acme-platform/billing-service"
+github_deploy_environment = "cell-01"
+
+create_github_oidc_provider = true
+
+db_instance_class            = "db.t4g.medium"
+performance_insights_enabled = true
+db_allocated_storage         = 20
+
+db_backup_retention_days = 14
+
+external_egress_cidrs = []
+
+log_retention_days = 400
+node_instance_type = "t3.medium"
+
+tags = {
+  CostCenter = "platform"
+  DataClass  = "confidential"
+}

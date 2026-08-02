@@ -1,0 +1,11 @@
+{{ .Release.Name }} in {{ .Release.Namespace }}
+
+image  {{ include "billing-service.image" . }}
+netpol {{ if .Values.networkPolicy.enabled }}{{ .Values.networkPolicy.allowedNamespace }} only{{ else }}off{{ end }}
+
+kubectl -n {{ .Release.Namespace }} rollout status deploy/{{ include "billing-service.fullname" . }}
+helm rollback {{ .Release.Name }} -n {{ .Release.Namespace }}
+{{- if not .Values.externalSecrets.enabled }}
+
+secret {{ .Values.secrets.existingSecret }} must exist or pods will not start
+{{- end }}

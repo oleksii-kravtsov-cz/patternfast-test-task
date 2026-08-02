@@ -1,0 +1,122 @@
+
+replicaCount: 2
+
+image:
+  repository: 123456789012.dkr.ecr.eu-central-1.amazonaws.com/cell-01/billing-service
+  tag: "0.0.1"
+  digest: ""
+  requireDigest: false
+  pullPolicy: IfNotPresent
+
+imagePullSecrets: []
+nameOverride: ""
+
+serviceAccount:
+  create: true
+  name: ""
+  roleArn: ""
+  automountServiceAccountToken: false
+
+service:
+  type: ClusterIP
+  port: 3000
+  targetPort: 3000
+
+ingress:
+  enabled: false
+  className: alb
+  hostname: cell-01.platform.example.com
+  annotations: {}
+  tls:
+    enabled: true
+    secretName: billing-service-tls
+
+env:
+  nodeEnv: production
+  pgSslMode: verify-full
+  devExposeTokens: "false"
+  logLevel: info
+  dbUser: billing_app
+  dbIamAuth: "true"
+  dbCaCertPath: /etc/ssl/certs/rds-global-bundle.pem
+  extra: {}
+
+secrets:
+  existingSecret: billing-service-secrets
+  keys:
+    AUTH_JWT_SECRET: jwt-secret
+    STRIPE_SECRET_KEY: stripe-key
+
+externalSecrets:
+  enabled: false
+  secretStoreRef:
+    name: aws-secretsmanager
+    kind: ClusterSecretStore
+  refreshInterval: 1h
+  remoteSecretName: /acme/cell-01/billing-service/app
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    cpu: 500m
+    memory: 512Mi
+
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 1000
+  runAsGroup: 1000
+  fsGroup: 1000
+  seccompProfile:
+    type: RuntimeDefault
+
+containerSecurityContext:
+  allowPrivilegeEscalation: false
+  privileged: false
+  readOnlyRootFilesystem: true
+  runAsNonRoot: true
+  runAsUser: 1000
+  capabilities:
+    drop:
+      - ALL
+
+probes:
+  liveness:
+    path: /health
+    initialDelaySeconds: 10
+    periodSeconds: 20
+    timeoutSeconds: 3
+    failureThreshold: 3
+  readiness:
+    path: /health
+    initialDelaySeconds: 5
+    periodSeconds: 10
+    timeoutSeconds: 3
+    failureThreshold: 3
+  startup:
+    path: /health
+    periodSeconds: 5
+    failureThreshold: 12
+
+networkPolicy:
+  enabled: true
+  allowedNamespace: api-gateway
+  allowedPodLabels:
+    app.kubernetes.io/name: api-gateway
+  dnsNamespace: kube-system
+  databasePort: 5432
+  extraEgressCidrs: []
+
+podDisruptionBudget:
+  enabled: true
+  minAvailable: 1
+
+topologySpreadEnabled: true
+revisionHistoryLimit: 3
+terminationGracePeriodSeconds: 30
+
+nodeSelector: {}
+tolerations: []
+affinity: {}
+podAnnotations: {}

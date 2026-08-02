@@ -1,0 +1,52 @@
+{{- if .Values.networkPolicy.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ include "billing-service.fullname" . }}
+  labels:
+    {{- include "billing-service.labels" . | nindent 4 }}
+spec:
+  podSelector:
+    matchLabels:
+      {{- include "billing-service.selectorLabels" . | nindent 6 }}
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    {{- if not .Values.networkPolicy.allowedPodLabels }}
+    {{- fail "networkPolicy.allowedPodLabels is empty, that would admit every pod in the namespace" }}
+    {{- end }}
+    {{- if not .Values.networkPolicy.allowedNamespace }}
+    {{- fail "networkPolicy.allowedNamespace is required" }}
+    {{- end }}
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: {{ .Values.networkPolicy.allowedNamespace | quote }}
+          podSelector:
+            matchLabels:
+              {{- toYaml .Values.networkPolicy.allowedPodLabels | nindent 14 }}
+      ports:
+        - port: {{ .Values.service.targetPort }}
+          protocol: TCP
+  egress:
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: {{ .Values.networkPolicy.dnsNamespace }}
+      ports:
+        - port: 53
+          protocol: UDP
+        - port: 53
+          protocol: TCP
+    {{- range .Values.networkPolicy.extraEgressCidrs }}
+    - to:
+        - ipBlock:
+            cidr: {{ . | quote }}
+      ports:
+        - port: {{ $.Values.networkPolicy.databasePort }}
+          protocol: TCP
+        - port: 443
+          protocol: TCP
+    {{- end }}
+{{- end }}

@@ -1,0 +1,8 @@
+
+*                           @acme-platform/platform-engineering
+
+/terraform/                 @acme-platform/platform-engineering @acme-platform/security
+/.github/workflows/         @acme-platform/platform-engineering @acme-platform/security
+/charts/billing-service/    @acme-platform/platform-engineering @acme-platform/security
+/SECURITY.md                @acme-platform/security
+/scripts/provision-cell.sh  @acme-platform/platform-engineering @acme-platform/security
